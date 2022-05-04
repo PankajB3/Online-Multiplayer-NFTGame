@@ -22,12 +22,12 @@ async function logOut() {
     console.log("logged out");
 }
 
-document.getElementById("btn-login").onclick = login;
+document.getElementById("btn-login").onclick = login; 
 document.getElementById("btn-logout").onclick = logOut;
 
 var config = {
     type: Phaser.AUTO,
-    width: 800,
+    width: 900,
     height: 600,
     scene: {
         preload: preload,
@@ -36,6 +36,7 @@ var config = {
     }
 };
 
+// here we create new game & config properties are used
 var game = new Phaser.Game(config);
 
 // loading assets
@@ -47,5 +48,6 @@ function create() {
 }
 
 // normally in a game, we have 60 frames per sec => firing update() 60 times a second
+// this fx would be getting called all the time... automaticallyyyy
 function update() {
 }
