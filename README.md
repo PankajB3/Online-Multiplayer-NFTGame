@@ -10,7 +10,7 @@ The width and height properties set the size of the canvas element that Phaser w
 The scene property of the configuration object
 
 ### Physics in game
-```platforms = this.physics.add.staticGroup();```
+```platforms = this.physics.add.staticGroup();``` <br>
 This creates a new Static Physics Group and assigns it to the local variable platforms. In Arcade Physics there are two types of physics bodies: Dynamic and Static. A dynamic body is one that can move around via forces such as velocity or acceleration. It can bounce and collide with other objects and that collision is influenced by the mass of the body and other elements.
 
 In stark contrast, a Static Body simply has a position and a size. It isn't touched by gravity, you cannot set velocity on it and when something collides with it, it never moves. Static by name, static by nature. And perfect for the ground and platforms that we're going to let the player run around on.

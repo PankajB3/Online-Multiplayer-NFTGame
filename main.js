@@ -1,6 +1,6 @@
 /** Connect to Moralis server */
-const serverUrl = "https://l1wg6aqgcm8n.usemoralis.com:2053/server";
-const appId = "tgy5evtxSIL9DqVelSjRsDzOdxKUCLIJ0J30bDia";
+const serverUrl = "https://ftwp5l7thmro.usemoralis.com:2053/server";
+const appId = "j8Zc3MmP4aLrcqfA71v2X7XQaNFuMqea242HeSeH";
 Moralis.start({ serverUrl, appId });
 
 /** Add from here down */
@@ -11,6 +11,7 @@ async function login() {
             user = await Moralis.authenticate({ signingMessage: "Hello World!" })
             // console.log(user)
             // console.log(user.get('ethAddress'))
+            // document.getElementById('btn-login').disable = true;
             launch();
         } catch (error) {
             console.log(error)
@@ -19,6 +20,8 @@ async function login() {
 }
 
 async function logOut() {
+    // let user = Moralis.User.current();
+  
     await Moralis.User.logOut();
     console.log("logged out");
     location.reload()
@@ -26,11 +29,11 @@ async function logOut() {
 
 function launch() {
     let user = Moralis.User.current();
-    if(!user){
+    if (!user) {
         console.log("Login using MetaMask")
-    }else{
+    } else {
         var game = new Phaser.Game(config);
-        console.log(user.get('ethAddress')+" "+" Logged In")
+        console.log(user.get('ethAddress') + " " + " Logged In")
     }
 }
 
@@ -57,9 +60,10 @@ var config = {
 
 // here we create new game & config properties are used
 
-var platforms
-var player1
-var cursors
+var platforms;
+var player1;
+var competitors = {};
+var cursors;
 
 // loading assets
 function preload() {
@@ -71,7 +75,7 @@ function preload() {
 }
 
 // initial setup
-function create() {
+async function create() {
     // this sets image center at 400 x 300
     // change image size by setScale(0.xx)
     this.add.image(400, 300, "background").setScale(0.55)
@@ -95,11 +99,39 @@ function create() {
     // adding cursor
     cursors = this.input.keyboard.createCursorKeys();
 
+    // logic for different player movements
+    let user = Moralis.User.current();
+    console.log("Current User = ", user);
+
+    let query = new Moralis.Query("PlayerPosition");
+    let subscription = await query.subscribe();
+
+    subscription.on('create', (plocation) => {
+        if (plocation.get('player') != user.get("ethAddress")) {
+            // if first time seeing
+            if (competitors[plocation.get("player")] == undefined) {
+                // create a sprite
+                competitors[plocation.get("player")] = this.add.image(plocation.get("x"), plocation.get("y"), 'comptetitor').setScale(0.3);
+            }
+            else {
+                competitors[plocation.get("player")].x = plocation.get("x");
+                competitors[plocation.get("player")].y = plocation.get("y");
+            }
+
+            console.log("Movement detected");
+            console.log(plocation.get("player"));
+            console.log("new X = ", plocation.get("x"));
+            console.log("new X = ", plocation.get("y"));
+        }
+    });
+
+
+
 }
 
 // normally in a game, we have 60 frames per sec => firing update() 60 times a second
 // this fx would be getting called all the time... automaticallyyyy
-function update() {
+async function update() {
     // console.log("Hello");
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
@@ -119,5 +151,20 @@ function update() {
 
     if (cursors.up.isDown && player.body.touching.down) {
         player.setVelocityY(-330);
+    }
+    if (player.lastX != player.x || player.lastY != player.y) {
+        let user = Moralis.User.current();
+        //* line 126 creates a new subclass PlayerPosition in DB
+        const PlayerPosition = Moralis.Object.extend("PlayerPosition");
+        const playerPosition = new PlayerPosition(); // creating obj for PlayerPosition
+
+        playerPosition.set("player", user.get("ethAddress"));
+        playerPosition.set("x", player.x);
+        playerPosition.set("y", player.y)
+
+        player.lastX = player.x;
+        player.lastY = player.y;
+
+        await playerPosition.save();
     }
 }
