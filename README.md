@@ -8,3 +8,11 @@ The type property can be either Phaser.CANVAS, Phaser.WEBGL, or Phaser.AUTO. Thi
 The width and height properties set the size of the canvas element that Phaser will create. In this case 800 x 600 pixels. Your game world can be any size you like, but this is the resolution the game will display in.
 
 The scene property of the configuration object
+
+### Physics in game
+```platforms = this.physics.add.staticGroup();```
+This creates a new Static Physics Group and assigns it to the local variable platforms. In Arcade Physics there are two types of physics bodies: Dynamic and Static. A dynamic body is one that can move around via forces such as velocity or acceleration. It can bounce and collide with other objects and that collision is influenced by the mass of the body and other elements.
+
+In stark contrast, a Static Body simply has a position and a size. It isn't touched by gravity, you cannot set velocity on it and when something collides with it, it never moves. Static by name, static by nature. And perfect for the ground and platforms that we're going to let the player run around on.
+
+ Group As their name implies they are ways for you to group together similar objects and control them all as one single unit. You can also check for collision between Groups and other game objects. Groups are capable of creating their own Game Objects via handy helper functions like create. A Physics Group will automatically create physics enabled children, saving you some leg-work in the process.
