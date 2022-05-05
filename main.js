@@ -21,7 +21,7 @@ async function login() {
 
 async function logOut() {
     // let user = Moralis.User.current();
-  
+
     await Moralis.User.logOut();
     console.log("logged out");
     location.reload()
@@ -66,14 +66,37 @@ var competitors = {};
 var cursors;
 
 // loading assets
-function preload() {
+async function preload() {
     // here 1st agrument is what we want to refer the image as in future
     // this alone will not show the image
     this.load.image('background', 'assets/BG.png');
     this.load.image('ground', 'assets/Tiles/Tile (2).png')
-    this.load.image('player1', 'assets/aaveGotchi.png')
-}
+    this.load.image('player', 'assets/aaveGotchi.png')
 
+    // fetch player SVG
+    const numericTraits = [1, 99, 99, 99, 1, 1]; // UI to change the traits
+    const equippedWearables = [23, 6, 2, 43, 0, 4, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    const rawSVG = await Moralis.Cloud.run("getSVG", { numericTraits: numericTraits, equippedWearables: equippedWearables })
+
+    //* converting rawSVG to resource
+    const svgBlob = new Blob([rawSVG], { type: "image/svg+xml;charset=utf-8" })
+    const url = URL.createObjectURL(svgBlob)
+
+    this.load.image('player', url);
+
+    this.load.on('filecomplete', function () {
+
+        initPlayer()
+    }, this);
+
+    this.load.start()
+}
+async function initPlayer(){
+    player = that.physics.add.sprite(500, 250, 'player').setScale(0.3).refreshBody();
+    player.setBounce(0.3);
+    that.physics.add.collider(player, platforms);
+  }
 // initial setup
 async function create() {
     // this sets image center at 400 x 300
